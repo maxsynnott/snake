@@ -1,0 +1,4 @@
+{
+	id: @game.id,
+	player_ids: @game.user_ids
+}
