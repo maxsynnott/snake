@@ -1,0 +1,1 @@
+@game.attributes.slice("winner_id", "user_ids", "initial_board", "history")

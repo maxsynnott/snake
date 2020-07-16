@@ -56,10 +56,11 @@ class Game < ApplicationRecord
 		init_user_snakes
 		assign_starter_positions
 
-		result = {
-			history: [],
-			initial_board: @board.data.clone.map { |row| row.map { |tile| tile.map(&:clone) } }
-		}
+		initial_board = @board.data.map { |row| row.map { |tile| tile.empty? ? "e" : tile } }.flatten.clone
+
+		initial_board = initial_board.chunk { |x| x }.map { |t, ta| t == 'e' ? t + ta.length.to_s : t }.join(',')
+
+		update(initial_board: initial_board)
 
 		history = []
 
@@ -68,15 +69,13 @@ class Game < ApplicationRecord
 
 			@user_snakes.map { |user_snake| Thread.new { moves << user_snake.fetch_move(@board) } }.each(&:join)
 
-			result[:history] << moves
+			history << moves
 
 			simulate_moves(moves)
 		end
 
-
-		result[:winner_id] = @user_snakes[0].try(:id)
-
-		result
+		update(winner_id: @user_snakes[0].try(:id))
+		update(history: history)
 	end
 
 	def game_over
